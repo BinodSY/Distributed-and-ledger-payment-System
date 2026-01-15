@@ -1,13 +1,11 @@
 package com.payment.minipaytm.authentication.dto;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-@NoArgsConstructor
-public class AuthUserDTO {
+public class loginRes {
+    private String token;
     private String email;
-    private String passwordHash;
 }
