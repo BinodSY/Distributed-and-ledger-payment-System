@@ -6,7 +6,7 @@ import org.springframework.security.core.Authentication;
 
 import org.springframework.stereotype.Service;
 
-import com.payment.minipaytm.authentication.config.JwtUtil;
+import com.payment.minipaytm.authentication.configs.JwtUtil;
 import com.payment.minipaytm.authentication.dto.loginRes;
 
 import org.springframework.security.authentication.AuthenticationManager;

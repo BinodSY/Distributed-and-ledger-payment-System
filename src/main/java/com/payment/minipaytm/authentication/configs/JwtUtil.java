@@ -1,4 +1,4 @@
-package com.payment.minipaytm.authentication.config;
+package com.payment.minipaytm.authentication.configs;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
