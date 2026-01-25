@@ -10,6 +10,7 @@ import javax.crypto.SecretKey;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.UUID;
 
 @Component // Added missing annotation so Spring can manage this bean
 public class JwtUtil {
@@ -25,12 +26,13 @@ public class JwtUtil {
 }
 
 
-    public String generateToken(String email) {
+    public String generateToken(String email,UUID userId) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + expireMs);
 
         return Jwts.builder()
                 .subject(email)
+                .claim(email,userId)
                 .issuedAt(now)
                 .expiration(expiry)
                 .signWith(getSignKey()) 

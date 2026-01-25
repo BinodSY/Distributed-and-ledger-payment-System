@@ -1,5 +1,8 @@
 package com.payment.minipaytm.authentication.service;
 
+import java.time.Duration;
+
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -8,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import com.payment.minipaytm.authentication.configs.JwtUtil;
 import com.payment.minipaytm.authentication.dto.loginRes;
+import com.payment.minipaytm.user.model.User;
+import com.payment.minipaytm.user.reposistory.UserRepository;
 
 import org.springframework.security.authentication.AuthenticationManager;
 
@@ -21,20 +26,40 @@ public class authService {
     
     @Autowired
     private  AuthenticationManager authenticationManager;
+
     
-    public  loginRes login(String email,String password){
+
+
+    @Autowired
+    private UserRepository userrepo;
+    
+    @Autowired
+    private RefreshTokenService refreshTokenService;
+    
+    public loginRes login(String email,String password){
 
         Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(email, password)
             );
-            String emailAdd=authentication.getName();
 
-        String token= jwtUtil.generateToken(emailAdd);
-            loginRes loginres=new loginRes();
+        User user=userrepo.findByEmail(email);
+        String emailId=authentication.getName();
+
+        String token= jwtUtil.generateToken(emailId,user.getUserId());
+        String refreshToken = refreshTokenService.createAndStore(user.getUserId());
+
+        // refresh cookie maxAge should match refresh token lifetime (example 7 days)
+        long maxAgeSeconds = Duration.ofDays(7).toSeconds();
+
+        loginRes loginres=new loginRes();
             loginres.setToken(token);
-            loginres.setEmail(emailAdd);
+            loginres.setRefreshToken(refreshToken);
+            loginres.setEmail(emailId);
+            loginres.setExpiresInSeconds(maxAgeSeconds);
 
-            return loginres;
+        return loginres;
             
     }
+
+    
 }

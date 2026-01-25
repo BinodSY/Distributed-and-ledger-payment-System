@@ -24,6 +24,7 @@ public class UserAuthAdapter implements UserAuthPort{
             }
         
         AuthUserDTO authUserDTO = new AuthUserDTO();
+        authUserDTO.setUserId(user.getUserId());
         authUserDTO.setEmail(user.getEmail());
         authUserDTO.setPasswordHash(user.getPasswordHash());
         return authUserDTO;

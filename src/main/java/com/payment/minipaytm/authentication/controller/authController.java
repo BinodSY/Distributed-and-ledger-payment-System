@@ -2,6 +2,7 @@ package com.payment.minipaytm.authentication.controller;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -9,12 +10,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.payment.minipaytm.authentication.configs.CookieUtil;
+import com.payment.minipaytm.authentication.configs.RefreshCookieUtil;
+import com.payment.minipaytm.authentication.dto.RefreshResult;
 import com.payment.minipaytm.authentication.dto.loginRequest;
 import com.payment.minipaytm.authentication.dto.loginRes;
 import com.payment.minipaytm.authentication.dto.regRes;
 import com.payment.minipaytm.authentication.dto.registerReq;
+import com.payment.minipaytm.authentication.service.RefreshTokenService;
 import com.payment.minipaytm.authentication.service.authService;
 import com.payment.minipaytm.user.service.UserService;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 
 @RestController
@@ -26,6 +34,15 @@ public class authController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private CookieUtil cookieUtil;
+
+    @Autowired
+    private RefreshTokenService refreshService;
+    @Autowired
+    private RefreshCookieUtil refreshCookieUtil;
+
     
     @GetMapping("/health-check")
     public String healthCheck(){
@@ -41,6 +58,32 @@ public class authController {
         loginRes loginres=authservice.login(email,password);
         return ResponseEntity.ok(loginres);
     }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(HttpServletRequest request,HttpServletResponse response){
+        String rawRefresh=cookieUtil.getCookieValue(request,"refreshToken");
+         if (rawRefresh == null || rawRefresh.isBlank()) {
+            return ResponseEntity.status(401).body("Missing refresh token");
+        }
+        RefreshResult result = refreshService.refresh(rawRefresh);
+
+        ResponseCookie cookie = refreshCookieUtil.buildRefreshCookie(
+                "refreshToken",
+                result.getNewRefreshToken(),
+                result.getExpiresInSeconds()
+        );
+
+         response.addHeader("Set-Cookie", cookie.toString());
+
+        // return only access token + user info
+        loginRes res = new loginRes();
+        res.setToken(result.getAccessToken());
+        res.setEmail(result.getEmail());
+        res.setExpiresInSeconds(result.getExpiresInSeconds());
+
+        return ResponseEntity.ok(res);
+    }
+    
     
 
 

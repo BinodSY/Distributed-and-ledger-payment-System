@@ -5,9 +5,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class loginRes {
-    private String token;
-    private String refreshToken;
+public class RefreshResult {
+    private String accessToken;
+    private String newRefreshToken;
     private String email;
     private long expiresInSeconds;
 }
