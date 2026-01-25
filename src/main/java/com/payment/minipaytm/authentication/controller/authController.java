@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.payment.minipaytm.authentication.configs.CookieUtil;
 import com.payment.minipaytm.authentication.configs.RefreshCookieUtil;
 import com.payment.minipaytm.authentication.dto.RefreshResult;
 import com.payment.minipaytm.authentication.dto.loginRequest;
@@ -39,8 +38,7 @@ public class authController {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private CookieUtil cookieUtil;
+    
 
     @Autowired
     private RefreshTokenService refreshService;
@@ -79,7 +77,7 @@ public class authController {
 
     @PostMapping("/refresh")
     public ResponseEntity<?> refresh(HttpServletRequest request,HttpServletResponse response){
-        String rawRefresh=cookieUtil.getCookieValue(request,"refreshToken");
+        String rawRefresh=refreshCookieUtil.getCookieValue(request,"refreshToken");
          if (rawRefresh == null || rawRefresh.isBlank()) {
             return ResponseEntity.status(401).body("Missing refresh token");
         }
