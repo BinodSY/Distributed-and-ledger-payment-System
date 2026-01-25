@@ -1,7 +1,11 @@
 package com.payment.minipaytm.authentication.controller;
 
 
+
+import java.time.Duration;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -52,10 +56,24 @@ public class authController {
     
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody loginRequest request){
+    public ResponseEntity<?> login(@RequestBody loginRequest request,HttpServletResponse response){
         String email=request.getEmail();
         String password=request.getPassword();
         loginRes loginres=authservice.login(email,password);
+
+          long maxAgeSeconds = Duration.ofDays(7).toSeconds();
+
+        ResponseCookie cookie = refreshCookieUtil.buildRefreshCookie(
+                "refreshToken",
+                loginres.getRefreshToken(),
+                maxAgeSeconds
+        );
+
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
+        // IMPORTANT: remove refresh token from body
+        loginres.setRefreshToken(null);
+
         return ResponseEntity.ok(loginres);
     }
 
@@ -73,7 +91,7 @@ public class authController {
                 result.getExpiresInSeconds()
         );
 
-         response.addHeader("Set-Cookie", cookie.toString());
+         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
         // return only access token + user info
         loginRes res = new loginRes();
