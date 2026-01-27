@@ -31,8 +31,8 @@ public class JwtUtil {
         Date expiry = new Date(now.getTime() + expireMs);
 
         return Jwts.builder()
-                .subject(email)
-                .claim(email,userId)
+                .subject(userId.toString())
+                .claim("email",email)
                 .issuedAt(now)
                 .expiration(expiry)
                 .signWith(getSignKey()) 
@@ -40,8 +40,16 @@ public class JwtUtil {
     }
 
     public String extractEmail(String token) {
-        return parseClaims(token).getSubject();
+        return parseClaims(token).get("email", String.class);
     }
+
+    public UUID extractUserId(String token) {
+    String subject = parseClaims(token).getSubject();
+    return UUID.fromString(subject);
+    }
+
+
+
 
     public boolean validateToken(String token) {
         try {
