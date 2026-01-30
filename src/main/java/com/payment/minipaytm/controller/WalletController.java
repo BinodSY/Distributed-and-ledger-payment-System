@@ -1,6 +1,7 @@
 package com.payment.minipaytm.controller;
 
 
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -13,8 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.payment.minipaytm.authentication.dto.CustomUserPrincipal;
 import com.payment.minipaytm.transaction.TransferResult;
+
 import com.payment.minipaytm.wallet.WalletService;
 import com.payment.minipaytm.wallet.WalletTransferService;
+import com.payment.minipaytm.wallet.DTO.BalanceReq;
 import com.payment.minipaytm.wallet.DTO.WalletTransferRequest;
 import com.payment.minipaytm.wallet.DTO.WalletTransferResponse;
 
@@ -59,4 +62,14 @@ public class WalletController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(walletId.toString());
     }
+
+    @PostMapping("/me")
+        public ResponseEntity<?> balanceCheck(@RequestBody BalanceReq balanceReq,@AuthenticationPrincipal CustomUserPrincipal principal){
+            Long  balance=walletService.getBalance(balanceReq.walletId(),principal.userId());
+            return ResponseEntity.ok(Map.of(
+                "walletId", balanceReq.walletId(),
+                "balance", balance
+            ));
+        }
+    
 }
