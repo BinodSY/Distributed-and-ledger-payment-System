@@ -46,6 +46,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                             }   
                                 UUID userId=jwtutil.extractUserId(token);
                                 String email=jwtutil.extractEmail(token);
+                                System.out.println(userId);
                                 CustomUserPrincipal principal =
                                          new CustomUserPrincipal(userId,email,"ROLE_USER");
 
