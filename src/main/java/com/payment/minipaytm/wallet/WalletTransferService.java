@@ -2,7 +2,9 @@ package com.payment.minipaytm.wallet;
 
 import java.util.*;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.payment.minipaytm.ledger.LedgerEntry;
 import com.payment.minipaytm.ledger.LedgerEntryRepository;
@@ -156,5 +158,26 @@ public class WalletTransferService {
             throw e;
         }
 
+    }
+
+    public String  walletRecharge(UUID userId,UUID walletId,Long amount){
+         /*
+        1. Basic validation
+        */
+        if(amount<=0){
+            throw new IllegalArgumentException("Transfer amount must be greater than zero");
+        }
+
+         
+
+        Wallet walletOpt = walletRepository.findByWalletIdAndUserId(walletId,userId).orElseThrow(()-> new ResponseStatusException(
+                                        HttpStatus.NOT_FOUND,
+                                        "Wallet not found"
+                                    ));
+            
+        walletOpt.credit(amount);
+        walletRepository.save(walletOpt);
+        return "Wallet recharged successfully. New balance: " + walletOpt.getBalanceCache();
+        
     }
 }

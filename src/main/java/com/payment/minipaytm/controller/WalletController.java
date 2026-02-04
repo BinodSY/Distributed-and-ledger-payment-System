@@ -18,6 +18,7 @@ import com.payment.minipaytm.transaction.TransferResult;
 import com.payment.minipaytm.wallet.WalletService;
 import com.payment.minipaytm.wallet.WalletTransferService;
 import com.payment.minipaytm.wallet.DTO.BalanceReq;
+import com.payment.minipaytm.wallet.DTO.WalletRecharge;
 import com.payment.minipaytm.wallet.DTO.WalletTransferRequest;
 import com.payment.minipaytm.wallet.DTO.WalletTransferResponse;
 
@@ -71,5 +72,13 @@ public class WalletController {
                 "balance", balance
             ));
         }
+    
+    @PostMapping("/reachargeWallet")
+    public ResponseEntity<?> walleteReacharge(@RequestBody WalletRecharge recharge,@AuthenticationPrincipal CustomUserPrincipal principal ){
+        String message=walletTransferService.walletRecharge(principal.userId(),recharge.walletId(),recharge.amount());
+        return ResponseEntity.ok(Map.of(
+            "message", message
+        ));
+    }
     
 }
